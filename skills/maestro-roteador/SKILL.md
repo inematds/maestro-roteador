@@ -48,6 +48,12 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
 | "vou de modelo maior por garantia" | Se o pior passo está dentro da capacidade do menor, o maior entrega o mesmo cobrando mais. Garantia se compra com esforço/verificação. |
 | "modelo pequeno + esforço max sai barato" | Pior combinação: paga deliberação pra quem não tem repertório pra usá-la, e os tokens de raciocínio acumulam. |
 
+## Anti-overhead: a triagem também tem custo
+
+- **Tarefa mais barata que a própria triagem não recebe triagem** — vai direto no default do turno. "Corrige esse typo" não merece YAML de despacho.
+- **A triagem roda inline no turno principal, nunca num subagente** — despachar um agente só pra decidir modelo/esforço custa mais que a decisão vale.
+- **Fragmentar também tem custo:** só despache uma parte pra subagente se o trabalho dela superar o overhead do spawn; partes mecânicas pequenas rodam inline mesmo quando a matriz diria "haiku".
+
 ## Empate de gosto → oferece a escolha (custo × qualidade)
 
 **Erro não é negociável; eficiência é.** Quando a escolha do modelo depende só de **acabamento** (qualidade de copy, gosto, polish visual) e não de correção, a decisão é de orçamento — e orçamento é do usuário. Nesse caso a triagem NÃO decide sozinha: apresenta o par e deixa o usuário escolher:

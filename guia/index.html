@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>maestro-roteador — triagem de modelo e esforço para Claude Code</title>
+<meta name="description" content="Skill de Claude Code que decide qual modelo (haiku/sonnet/opus/fable) e qual esforço (low→max) usar antes de despachar subagentes ou workflows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
+    --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --amb2:#f0c070; --sky:#38bdf8; --pro:#cbd5e1;
+    color-scheme:dark;
+  }
+  body.light{
+    --bg:#f6f7f9; --bg2:#eceef2; --card:#ffffff; --line:#e1e3ea;
+    --txt:#1a1a22; --mut:#5b5b68; --amb:#b9791d; --amb2:#a16207; --sky:#0369a1; --pro:#b45309;
+    color-scheme:light;
+  }
+  body.light .hero .glow{opacity:.5}
+  body.light pre{background:#0e0e14;color:#d6d6e0}
+  body.light pre .c{color:#8a8a98}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb);text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .mut{color:var(--mut)} .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(12px);background:rgba(12,12,16,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  nav .brand{display:flex;align-items:center;gap:8px;font-family:Sora;font-weight:800;letter-spacing:-.02em;color:var(--amb)}
+  nav .brand .emoji{font-size:1.25rem}
+  nav .sep{color:var(--mut);opacity:.45}
+  nav .inema{color:var(--sky);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .inema:hover{filter:brightness(1.15)}
+  nav .pro{color:var(--pro);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .pro:hover{filter:brightness(1.15)}
+  nav .clubpro{display:inline-flex;align-items:center;gap:6px}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:.92rem}
+  nav .links a.sec{color:var(--mut)} nav .links a.sec:hover{color:var(--txt)}
+  .tgl{background:var(--bg2);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  .tgl:hover{border-color:var(--amb)}
+  .btn{display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.6em 1.05em;border-radius:10px;font-family:Sora}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  @media(max-width:760px){nav .links a.sec{display:none}}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;height:600px;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent 70%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:74px 22px}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
+  .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:34ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero .heropanel{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000;background:#0a0a0e;padding:22px}
+  .hero .heropanel .lbl{color:var(--mut);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px}
+  @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
+  section .sub{color:var(--mut);margin:.6em 0 2em;max-width:62ch}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:1.05rem;margin-bottom:.4em}
+  .card p{color:var(--mut);font-size:.92rem;margin:0}
+  .num{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(226,162,59,.14);color:var(--amb);font-family:Sora;font-weight:800;font-size:.9rem;margin-bottom:.7em}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow span{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:.45em .9em;font-size:.85rem;font-family:Sora;font-weight:600}
+  .flow .arr{color:var(--amb);border:none;background:none;padding:0 .1em}
+  pre{background:#0a0a0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:.86rem;line-height:1.6;color:#d6d6e0}
+  pre .c{color:#6f6f7c} pre .k{color:var(--amb2)} pre .s{color:#9ece6a}
+  .step{display:grid;grid-template-columns:46px 1fr;gap:16px;margin-bottom:26px}
+  .step .b{width:46px;height:46px;border-radius:12px;background:var(--amb);color:#1a1206;font-family:Sora;font-weight:800;font-size:1.25rem;display:flex;align-items:center;justify-content:center}
+  .step h3{font-size:1.12rem;margin-bottom:.3em}
+  .step p{color:var(--mut);margin:.2em 0 .7em}
+  .tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+  .tbl th,.tbl td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left}
+  .tbl th{color:var(--mut);font-family:Sora;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+  .tbl td.antes{color:var(--mut)}
+  .tbl td.depois{color:var(--amb);font-weight:600}
+  .ex{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.ex{grid-template-columns:1fr}}
+  .ex .card{display:flex;flex-direction:column;gap:8px}
+  .phase{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border:none}
+  .phase .tag{flex:0 0 92px;font-family:Sora;font-weight:800;color:var(--amb)}
+  .phase .d strong{display:block;margin-bottom:.2em}
+  .phase .d span{color:var(--mut);font-size:.92rem}
+  footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap">
+  <a class="brand" href="#top"><span class="emoji">🎛️</span> maestro-roteador</a>
+  <span class="sep">|</span>
+  <span class="clubpro">
+    <a class="inema" href="https://inema.club" target="_blank" rel="noopener">INEMA.CLUB</a>
+    <span class="sep">-</span>
+    <a class="pro" href="https://inema.pro" target="_blank" rel="noopener">PRO</a>
+  </span>
+  <div class="links">
+    <a class="sec" href="#oque">O que é</a>
+    <a class="sec" href="#fluxo">Como funciona</a>
+    <a class="sec" href="#guia">Guia de uso</a>
+    <a class="sec" href="#exemplos">Validação</a>
+    <a class="sec" href="#roadmap">Roadmap</a>
+    <button class="tgl" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">🌙</button>
+    <a class="btn" href="https://github.com/inematds/maestro-roteador" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</div></nav>
+
+<header class="hero" id="top">
+  <div class="glow"></div>
+  <div class="wrap">
+    <div>
+      <span class="chip">Skill de Claude Code · triagem</span>
+      <h1>Modelo e esforço não se <span class="amb">convertem</span></h1>
+      <p class="lead">Antes de despachar um subagente ou workflow, o maestro-roteador decide separadamente <strong>qual modelo</strong> (haiku/sonnet/opus/fable) e <strong>quanto esforço</strong> (low→max) a tarefa merece — em vez de colapsar tudo em "sonnet+medium".</p>
+      <div class="cta">
+        <a class="btn" href="#guia">Começar o guia</a>
+        <a class="btn ghost" href="https://github.com/inematds/maestro-roteador" target="_blank" rel="noopener">Ver no GitHub</a>
+      </div>
+    </div>
+    <div class="heropanel">
+      <span class="lbl">Formato de saída</span>
+<pre><span class="c"># plano de despacho</span>
+<span class="k">tarefa:</span> migração de dados
+<span class="k">partes:</span>
+  - <span class="k">o_que:</span> transformar schema
+    <span class="k">pior_passo:</span> produção em risco
+    <span class="k">modelo:</span> <span class="s">sonnet</span>
+    <span class="k">esforco:</span> <span class="s">high</span>
+    <span class="k">risco:</span> dado perdido em produção</pre>
+    </div>
+  </div>
+</header>
+
+<section id="oque"><div class="wrap">
+  <span class="chip">O que é</span>
+  <h2>Dois eixos, duas perguntas, nunca um meio-termo</h2>
+  <p class="sub">O maestro-roteador é uma skill de Claude Code: recebe um problema bruto e decide, antes de despachar, qual modelo e qual esforço cada parte do trabalho merece.</p>
+  <div class="grid g3">
+    <div class="card"><h3>🎯 Modelo = repertório</h3><p>Responde uma pergunta só: qual nível de critério o <strong>pior passo</strong> da tarefa exige? O menor modelo que resolve bem esse passo é o escolhido — nunca "por garantia".</p></div>
+    <div class="card"><h3>⚙️ Esforço = deliberação</h3><p>Soma ambiguidade + custo do erro. Solução única e erro barato → low. Vários caminhos plausíveis ou erro caro (produção, dado perdido) → high ou mais.</p></div>
+    <div class="card"><h3>⚖️ Erro não negocia, eficiência sim</h3><p>Quando o risco é de correção, não há opção barata. Quando é só acabamento/gosto, a skill oferece a escolha custo × qualidade e quem decide é o usuário.</p></div>
+  </div>
+</div></section>
+
+<section id="fluxo"><div class="wrap">
+  <span class="chip">Como funciona</span>
+  <h2>Procedimento, sempre nesta ordem</h2>
+  <p class="sub">A skill roda inline no turno principal — nunca em um subagente — e segue quatro passos fixos antes de despachar qualquer trabalho.</p>
+  <div class="flow">
+    <span>1. Isola o pior passo</span><span class="arr">→</span>
+    <span>2. Modelo = o menor que resolve</span><span class="arr">→</span>
+    <span>3. Esforço = ambiguidade + custo do erro</span><span class="arr">→</span>
+    <span>4. Volume: testa 1 item antes do lote</span>
+  </div>
+  <div class="grid g3" style="margin-top:28px">
+    <div class="card"><h3>🪤 Anti-overhead</h3><p>Tarefa mais barata que a própria triagem não recebe triagem. "Corrige esse typo" vai direto no default do turno.</p></div>
+    <div class="card"><h3>🚨 Risco nomeado = high</h3><p>Se você mesmo nomeou um risco de produção/perda na justificativa, o esforço mínimo é high. "Medium com cuidado" não existe.</p></div>
+    <div class="card"><h3>🎭 Empate de gosto</h3><p>Quando a estrutura já está garantida por um template/skill e só falta acabamento, a triagem apresenta o par custo×qualidade e deixa o usuário escolher.</p></div>
+  </div>
+</div></section>
+
+<section id="pre"><div class="wrap">
+  <span class="chip">Pré-requisitos</span>
+  <h2>O que precisa estar no ar</h2>
+  <p class="sub">Só isso: Claude Code instalado e a skill disponível em <code>~/.claude/skills/</code> (usuário) ou <code>.claude/skills/</code> (projeto).</p>
+  <div class="grid g3">
+    <div class="card"><h3>Claude Code</h3><p>CLI com suporte a skills e a chamadas Agent/Workflow com parâmetros <code>model</code>/<code>effort</code>.</p><pre><span class="c"># confirma instalação</span>
+claude --version</pre></div>
+    <div class="card"><h3>Git</h3><p>Pra clonar o repo e criar o symlink de instalação.</p><pre><span class="c"># confirma git</span>
+git --version</pre></div>
+    <div class="card"><h3>Nenhuma dependência extra</h3><p>Sem serviço externo, sem chave de API, sem build. É markdown puro lido pelo Claude Code.</p><pre><span class="c"># conteúdo da skill</span>
+skills/maestro-roteador/SKILL.md</pre></div>
+  </div>
+</div></section>
+
+<section id="guia"><div class="wrap">
+  <span class="chip">Guia de uso · passo a passo</span>
+  <h2>Instalar e usar a triagem</h2>
+  <p class="sub">Instalação por symlink (pra receber atualizações do repo automaticamente) e três formas de acionar a triagem.</p>
+
+  <div class="step"><div class="b">1</div><div>
+    <h3>Clone o repo</h3>
+    <p>Baixa a skill.</p>
+<pre><span class="k">git clone https://github.com/inematds/maestro-roteador.git</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">2</div><div>
+    <h3>Instale via symlink (usuário)</h3>
+    <p>Fica disponível em qualquer projeto e recebe atualizações do repo sem reinstalar.</p>
+<pre><span class="k">ln -sfn "$(pwd)/maestro-roteador/skills/maestro-roteador" ~/.claude/skills/maestro-roteador</span>  <span class="c"># symlink de usuário</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">3</div><div>
+    <h3>Ou copie só pra um projeto</h3>
+    <p>Sem symlink, direto na pasta de skills do projeto (não recebe atualizações automáticas).</p>
+<pre><span class="k">cp -r maestro-roteador/skills/maestro-roteador .claude/skills/</span>  <span class="c"># skill só deste projeto</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">4</div><div>
+    <h3>Peça a triagem diretamente</h3>
+    <p>Frases-gatilho: "qual modelo", "quanto esforço", "faz a triagem disso".</p>
+<pre><span class="k">"Faz a triagem disso: renomear 80 arquivos em lote seguindo um padrão."</span>  <span class="c"># -> haiku + low</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">5</div><div>
+    <h3>Ou só peça o trabalho normalmente</h3>
+    <p>Ao despachar subagentes/workflows, a skill aplica a matriz sozinha e distribui cada parte com <code>model</code> e <code>effort</code> corretos — sem você precisar pedir a triagem à parte.</p>
+<pre><span class="k">"Migra esses dados de produção pro schema novo."</span>  <span class="c"># -> sonnet + high (risco nomeado)</span></pre>
+  </div></div>
+
+  <div class="step"><div class="b">6</div><div>
+    <h3>Leia o plano de despacho</h3>
+    <p>A saída sempre vem no mesmo formato YAML, com o pior passo e o risco explicitados por parte.</p>
+<pre><span class="k">tarefa:</span> &lt;resumo&gt;
+<span class="k">partes:</span>
+  - <span class="k">o_que:</span> &lt;subtarefa&gt;
+    <span class="k">pior_passo:</span> &lt;qual e por quê&gt;
+    <span class="k">modelo:</span> haiku|sonnet|opus|fable
+    <span class="k">esforco:</span> low|medium|high|xhigh|max
+    <span class="k">risco:</span> &lt;custo do erro em 1 linha&gt;
+<span class="k">turno_principal:</span> &lt;recomendação de /model, se valer trocar&gt;</pre>
+  </div></div>
+
+</div></section>
+
+<section id="exemplos"><div class="wrap">
+  <span class="chip">Validação</span>
+  <h2>TDD de skill: baseline vs. com a skill</h2>
+  <p class="sub">A skill foi escrita contra um baseline medido: sem ela, agentes colapsam qualquer tarefa em "sonnet + medium". Com ela, os três cenários de teste foram pro canto certo da matriz.</p>
+  <table class="tbl">
+    <thead><tr><th>Cenário</th><th>Sem skill</th><th>Com skill</th></tr></thead>
+    <tbody>
+      <tr><td>Renomear 80 arquivos em lote</td><td class="antes">sonnet + medium</td><td class="depois">haiku + low</td></tr>
+      <tr><td>Roteiro com voz de marca</td><td class="antes">sonnet + medium</td><td class="depois">fable + low</td></tr>
+      <tr><td>Migração de dados com produção em risco</td><td class="antes">sonnet + medium</td><td class="depois">sonnet + high</td></tr>
+    </tbody>
+  </table>
+  <div class="ex" style="margin-top:24px">
+    <div class="card"><h3>💡 Por que isso importa</h3><p>O meio-termo genérico "sonnet+medium pra tudo" paga demais em tarefas mecânicas e de menos em tarefas com risco real — os três cenários mostram os dois erros ao mesmo tempo.</p></div>
+    <div class="card"><h3>🧪 Como testar você mesmo</h3><p>Rode "sem skill" (desative-a) e "com skill" no mesmo pedido bruto e compare o modelo/esforço escolhido — é exatamente o teste que validou os três cenários acima.</p></div>
+  </div>
+</div></section>
+
+<section id="roadmap"><div class="wrap">
+  <span class="chip">Roadmap</span>
+  <h2>Estado atual e limite conhecido</h2>
+  <p class="sub">Projeto de pesquisa/educação INEMA — sem roadmap formal de features; o que existe hoje e o limite documentado da skill.</p>
+  <div class="phase"><div class="tag">Hoje</div><div class="d"><strong>Skill funcional, validada contra baseline</strong><span>Regras de decisão, tabela rápida, armadilhas comuns e formato de saída definidos em SKILL.md, testados nos três cenários acima.</span></div></div>
+  <div class="phase"><div class="tag">Automático</div><div class="d"><strong>Subagentes e workflows</strong><span>Para chamadas Agent/Workflow, a decisão de model/effort é automática — a skill aplica a matriz sem precisar ser chamada explicitamente.</span></div></div>
+  <div class="phase"><div class="tag">Limite</div><div class="d"><strong>Conversa principal só recomenda</strong><span>Para o modelo do turno principal, a skill apenas sugere — a troca de fato é sempre do usuário via /model.</span></div></div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <div class="pill">Claude Code Skill</div><div class="pill">Markdown</div><div class="pill">MIT</div>
+    <p style="margin-top:18px">maestro-roteador · projeto de pesquisa/educação INEMA ·
+      <a href="https://github.com/inematds/maestro-roteador">inematds/maestro-roteador</a> ·
+      <a href="https://inema.club">INEMA.CLUB</a></p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var KEY='maestro-roteador-theme';
+    var b=document.body, t=document.getElementById('themeToggle');
+    if(localStorage.getItem(KEY)==='light'){ b.classList.add('light'); t.textContent='☀️'; }
+    t.addEventListener('click',function(){
+      var light=b.classList.toggle('light');
+      t.textContent=light?'☀️':'🌙';
+      localStorage.setItem(KEY, light?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>
