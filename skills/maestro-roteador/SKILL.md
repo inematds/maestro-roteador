@@ -48,6 +48,21 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
 | "vou de modelo maior por garantia" | Se o pior passo está dentro da capacidade do menor, o maior entrega o mesmo cobrando mais. Garantia se compra com esforço/verificação. |
 | "modelo pequeno + esforço max sai barato" | Pior combinação: paga deliberação pra quem não tem repertório pra usá-la, e os tokens de raciocínio acumulam. |
 
+## Empate de gosto → oferece a escolha (custo × qualidade)
+
+**Erro não é negociável; eficiência é.** Quando a escolha do modelo depende só de **acabamento** (qualidade de copy, gosto, polish visual) e não de correção, a decisão é de orçamento — e orçamento é do usuário. Nesse caso a triagem NÃO decide sozinha: apresenta o par e deixa o usuário escolher:
+
+```yaml
+opcoes:
+  custo: sonnet+low        # estrutura correta, acabamento funcional
+  qualidade: fable+low     # mesma estrutura, copy/polish superior
+decide: usuário
+```
+
+Sinal de empate de gosto: existe um template/skill detalhada que já decidiu a estrutura (a correção está garantida pelo gabarito) e o que sobra pro modelo grande é só a voz/acabamento.
+
+**Nunca oferecer o par quando o risco é de correção** — conteúdo errado, dado perdido, produção quebrada, curso com erro. Aí não há opção barata: o modelo/esforço que garante a correção é o mínimo, não uma escolha.
+
 ## Formato de saída (plano de despacho)
 
 ```yaml
