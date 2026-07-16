@@ -54,8 +54,9 @@
   .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
   .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:34ch}
   .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
-  .hero .heropanel{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000;background:#0a0a0e;padding:22px}
-  .hero .heropanel .lbl{color:var(--mut);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px}
+  .hero .heropanel{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000;background:#0a0a0e}
+  .hero .heropanel img{display:block;width:100%;height:auto}
+  .figimg{display:block;width:100%;height:auto;border-radius:14px;border:1px solid var(--line);box-shadow:0 24px 60px -30px #000;margin-top:26px}
   @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
   section{padding:62px 0;border-bottom:1px solid var(--line)}
   section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
@@ -107,6 +108,8 @@
   <div class="links">
     <a class="sec" href="#oque">O que é</a>
     <a class="sec" href="#fluxo">Como funciona</a>
+    <a class="sec" href="#cache">Cache</a>
+    <a class="sec" href="#harness">Harness</a>
     <a class="sec" href="#guia">Guia de uso</a>
     <a class="sec" href="#exemplos">Validação</a>
     <a class="sec" href="#roadmap">Roadmap</a>
@@ -128,15 +131,7 @@
       </div>
     </div>
     <div class="heropanel">
-      <span class="lbl">Formato de saída</span>
-<pre><span class="c"># plano de despacho</span>
-<span class="k">tarefa:</span> migração de dados
-<span class="k">partes:</span>
-  - <span class="k">o_que:</span> transformar schema
-    <span class="k">pior_passo:</span> produção em risco
-    <span class="k">modelo:</span> <span class="s">sonnet</span>
-    <span class="k">esforco:</span> <span class="s">high</span>
-    <span class="k">risco:</span> dado perdido em produção</pre>
+      <img src="assets/hero-maestro.jpg" alt="Skill orienta, orquestrador decide, agente executa — skill não age sozinha, o agente executa" loading="eager">
     </div>
   </div>
 </header>
@@ -162,11 +157,40 @@
     <span>3. Esforço = ambiguidade + custo do erro</span><span class="arr">→</span>
     <span>4. Volume: testa 1 item antes do lote</span>
   </div>
-  <div class="grid g3" style="margin-top:28px">
+  <div class="grid g4" style="margin-top:28px">
     <div class="card"><h3>🪤 Anti-overhead</h3><p>Tarefa mais barata que a própria triagem não recebe triagem. "Corrige esse typo" vai direto no default do turno.</p></div>
     <div class="card"><h3>🚨 Risco nomeado = high</h3><p>Se você mesmo nomeou um risco de produção/perda na justificativa, o esforço mínimo é high. "Medium com cuidado" não existe.</p></div>
+    <div class="card"><h3>🪜 Escada com evidência</h3><p>Erro barato e reversível? Comece no menor esforço plausível e só suba com evidência de resultado insuficiente — nunca "high por garantia". A escada NÃO vale pra risco irreversível.</p></div>
     <div class="card"><h3>🎭 Empate de gosto</h3><p>Quando a estrutura já está garantida por um template/skill e só falta acabamento, a triagem apresenta o par custo×qualidade e deixa o usuário escolher.</p></div>
   </div>
+  <img class="figimg" src="assets/roteador-agentes.jpg" alt="Fluxo do roteador: seu pedido entra, o agente roteador analisa e escolhe o agente certo (pesquisa, código, conteúdo, análise, revisão) e entrega o resultado" loading="lazy">
+</div></section>
+
+<section id="cache"><div class="wrap">
+  <span class="chip">Economia</span>
+  <h2>Cache: o custo escondido da troca de modelo</h2>
+  <p class="sub">O prompt cache é por modelo e depende do prefixo do contexto. Perder o cache de um contexto de 100k tokens torna a próxima entrada ~12,5× mais cara (gravação 1,25× vs. leitura 0,1×). A matriz de triagem precisa respeitar isso.</p>
+  <div class="grid g3">
+    <div class="card"><h3>🧱 Troca só em fronteira</h3><p>Trocar o <code>/model</code> do turno principal joga fora o cache acumulado. Faça a troca só em fronteira de trabalho (fim de fase, handoff) — nunca no meio de um bloco. Em contexto grande, a troca pode custar mais que a economia do modelo menor.</p></div>
+    <div class="card"><h3>🤖 Subagente é grátis em cache</h3><p>Cada Agent/Workflow tem contexto próprio: rotear uma parte pra um modelo menor via subagente NÃO toca o cache principal. É o caminho preferido pra aplicar a matriz sem custo de troca.</p></div>
+    <div class="card"><h3>🚫 Sem keepalive artificial</h3><p>Nunca mandar "ainda está aí?" só pra segurar o cache — o Claude Code gerencia o cache sozinho e o ping custa mais do que salva. Pausa longa? Handoff enxuto e deixe expirar.</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><h3>📋 Rotina que preserva cache</h3><p>Trabalhe em blocos contínuos (planejar → executar → testar → documentar), mantenha o começo do contexto estável (não ligar/desligar ferramentas e MCPs no meio do bloco) e concentre tarefas relacionadas na mesma sessão.</p></div>
+    <div class="card"><h3>⏸️ Pausas</h3><p>Pausa curta: continue normal. Pausa longa ou troca de tarefa: handoff curto (objetivo, estado, decisões, próximo passo) + contexto novo. Na API direta, chamadas espaçadas por 10–50 min pagam o cache de TTL 1h (gravação 2×).</p></div>
+  </div>
+</div></section>
+
+<section id="harness"><div class="wrap">
+  <span class="chip">Perspectiva</span>
+  <h2>Harness &gt; esforço: onde o resultado nasce de verdade</h2>
+  <p class="sub">Num teste real com a mesma tarefa em 12 níveis de esforço e 2 providers, os resultados funcionais foram quase idênticos — os níveis altos adicionaram um favicon e sombras, por 2–5× os tokens. O que muda o resultado não é o slider de esforço.</p>
+  <div class="grid g3">
+    <div class="card"><h3>📝 Spec clara vence esforço alto</h3><p>Um prompt que diz exatamente o que "pronto" significa entrega em low o que o esforço max tenta adivinhar. Esforço não compensa especificação vaga.</p></div>
+    <div class="card"><h3>🛠️ O modelo é um cérebro num pote</h3><p>Ferramentas, arquivos, terminal, skills e instruções — o harness — são os braços do modelo. Investir no harness rende mais que subir esforço.</p></div>
+    <div class="card"><h3>🧠 Esforço demais atrapalha</h3><p>Em tarefa simples, deliberação em excesso re-explora caminhos já decididos e superdimensiona a solução — o resultado pode sair pior, não só mais caro.</p></div>
+  </div>
+  <img class="figimg" src="assets/roteador-futuro.jpg" alt="O agente certo para a tarefa certa, sempre: roteador analisa tipo, complexidade, risco, ferramentas e custo antes de despachar agentes especializados" loading="lazy">
 </div></section>
 
 <section id="pre"><div class="wrap">

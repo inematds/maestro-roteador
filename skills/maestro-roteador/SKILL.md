@@ -26,6 +26,7 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
    - Alguma escolha entre caminhos OU erro chato de corrigir → `medium`
    - Vários caminhos plausíveis OU erro caro (produção, dado perdido, publicação externa) → `high`+
    - Se você **nomeou um risco de produção/perda na justificativa, o esforço é no mínimo `high`** — "medium com cuidado" não existe.
+   - **Escada com evidência (só para erro barato):** se o erro é reversível e verificável na hora (dá pra testar/olhar/desfazer), comece no **menor esforço plausível** e só suba com **evidência** de resultado insuficiente — nunca "high por garantia". A escada NÃO se aplica a risco irreversível: aí a evidência de falha seria o próprio prejuízo, e vale a regra acima.
 4. **Volume:** N itens iguais → teste 1 item no menor modelo; se passa, o lote inteiro vai nele.
 
 ## Tabela rápida
@@ -47,12 +48,22 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
 | "medium é suficiente pra fazer com cuidado" (com produção em risco) | Você mesmo nomeou o risco. Risco nomeado = high. Cuidado é exatamente o que o esforço compra. |
 | "vou de modelo maior por garantia" | Se o pior passo está dentro da capacidade do menor, o maior entrega o mesmo cobrando mais. Garantia se compra com esforço/verificação. |
 | "modelo pequeno + esforço max sai barato" | Pior combinação: paga deliberação pra quem não tem repertório pra usá-la, e os tokens de raciocínio acumulam. |
+| "subo o esforço pra sair mais bonito/caprichado" | Esforço compra deliberação, não gosto. Acabamento é eixo de MODELO (ver empate de gosto). Medido em teste real: de high pra max a diferença foi um favicon, por 2–5× os tokens. |
+| "esforço a mais não ajuda, mas também não atrapalha" | Atrapalha: em tarefa simples, deliberação em excesso re-explora caminhos já decididos e superdimensiona a solução — o resultado pode sair PIOR, não só mais caro. |
 
 ## Anti-overhead: a triagem também tem custo
 
 - **Tarefa mais barata que a própria triagem não recebe triagem** — vai direto no default do turno. "Corrige esse typo" não merece YAML de despacho.
 - **A triagem roda inline no turno principal, nunca num subagente** — despachar um agente só pra decidir modelo/esforço custa mais que a decisão vale.
 - **Fragmentar também tem custo:** só despache uma parte pra subagente se o trabalho dela superar o overhead do spawn; partes mecânicas pequenas rodam inline mesmo quando a matriz diria "haiku".
+
+## Cache: o custo escondido da troca de modelo
+
+O prompt cache é **por modelo** e depende do prefixo do contexto — trocar o modelo da conversa principal joga fora o cache acumulado (reescrever custa ~12,5× uma leitura em contexto grande). Três regras:
+
+- **Troca de `/model` do turno principal só em fronteira de trabalho** (fim de fase, handoff) — nunca no meio de um bloco. Em contexto grande, a troca pode custar mais que a economia do modelo menor.
+- **Subagente NÃO paga esse custo.** Cada Agent/Workflow tem contexto próprio; rotear uma parte pra modelo menor via subagente não toca o cache principal. É o caminho preferido pra usar a matriz sem custo de troca.
+- **Nunca chamada artificial de keepalive** pra "segurar o cache" — o Claude Code gerencia o cache sozinho; o ping custa mais do que salva.
 
 ## Empate de gosto → oferece a escolha (custo × qualidade)
 
