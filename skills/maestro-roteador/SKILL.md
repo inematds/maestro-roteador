@@ -49,7 +49,7 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
 | "vou de modelo maior por garantia" | Se o pior passo está dentro da capacidade do menor, o maior entrega o mesmo cobrando mais. Garantia se compra com esforço/verificação. |
 | "modelo pequeno + esforço max sai barato" | Pior combinação: paga deliberação pra quem não tem repertório pra usá-la, e os tokens de raciocínio acumulam. |
 | "subo o esforço pra sair mais bonito/caprichado" | Esforço compra deliberação, não gosto. Acabamento é eixo de MODELO (ver empate de gosto). Medido em teste real: de high pra max a diferença foi um favicon, por 2–5× os tokens. |
-| "esforço a mais não ajuda, mas também não atrapalha" | Atrapalha: em tarefa simples, deliberação em excesso re-explora caminhos já decididos e superdimensiona a solução — o resultado pode sair PIOR, não só mais caro. |
+| "esforço a mais não ajuda, mas também não atrapalha" | Atrapalha: overthinking é o EXCESSO do próprio eixo esforço, não defeito do modelo. Em tarefa simples, deliberação sobrando re-explora caminhos já decididos e superdimensiona a solução — o resultado pode sair PIOR, não só mais caro. O esforço certo é o MENOR que cobre o risco; acima disso você compra ruído, não segurança. |
 
 ## Anti-overhead: a triagem também tem custo
 

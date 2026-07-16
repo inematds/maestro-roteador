@@ -5,6 +5,7 @@
 Skill de **triagem de modelo e esforço** para Claude Code: recebe um problema bruto e decide qual modelo (haiku / sonnet / opus / fable) e qual esforço de raciocínio (low → max) usar em cada parte do trabalho, antes de despachar subagentes ou workflows.
 
 **Guia completo (landing + passo a passo):** https://inematds.github.io/maestro-roteador/guia/
+**Tira-dúvidas para iniciantes (analogias, FAQ e passo a passo):** [docs/guia-explicativo.md](docs/guia-explicativo.md)
 
 ---
 
@@ -68,7 +69,7 @@ Racionalizações vistas em teste real, e por que estão erradas:
 4. **"Vou de modelo maior por garantia."** Se o pior passo está dentro da capacidade do menor, o maior entrega o mesmo cobrando mais. Garantia se compra com esforço/verificação, não com modelo.
 5. **"Modelo pequeno + esforço max sai barato."** Pior combinação possível: paga deliberação pra quem não tem repertório pra usá-la, e os tokens de raciocínio acumulam.
 6. **"Subo o esforço pra sair mais bonito/caprichado."** Esforço compra deliberação, não gosto. Acabamento é eixo de **modelo** (ver "empate de gosto" abaixo). Medido em teste real com 12 níveis de esforço em 2 providers: de high pra max, a diferença foi um favicon — por 2–5× os tokens.
-7. **"Esforço a mais não ajuda, mas também não atrapalha."** Atrapalha: em tarefa simples, deliberação em excesso re-explora caminhos já decididos e superdimensiona a solução. O resultado pode sair **pior**, não só mais caro — como quem revisa tanto a prova que troca a resposta certa.
+7. **"Esforço a mais não ajuda, mas também não atrapalha."** Atrapalha — e o overthinking é o **excesso do próprio eixo esforço**, não um defeito do modelo. Esforço compra deliberação; quando sobra deliberação numa tarefa simples, o modelo re-explora caminhos já decididos e superdimensiona a solução. O resultado pode sair **pior**, não só mais caro — como quem revisa tanto a prova que troca a resposta certa pela errada. Os dois erros do eixo são simétricos: esforço de menos em tarefa ambígua erra por falta de verificação; esforço de mais em tarefa simples erra por ruído. O esforço certo é o **menor que cobre o risco**.
 
 ## Anti-overhead: a triagem também tem custo
 
@@ -141,6 +142,8 @@ skills/
 guia/
   index.html    # landing + guia de uso (GitHub Pages)
   assets/       # imagens do guia
+docs/
+  guia-explicativo.md  # tira-dúvidas educativo: analogias, FAQ, passo a passo
 ```
 
 ## Instalação
@@ -158,6 +161,7 @@ Peça a triagem diretamente — "faz a triagem disso", "qual modelo e esforço p
 
 ## Changelog
 
+- **v1.2.2** — armadilha do overthinking explicitada (excesso do próprio eixo esforço; o esforço certo é o menor que cobre o risco) + docs/guia-explicativo.md (tira-dúvidas educativo com analogias, FAQ e passo a passo).
 - **v1.2.1** — escada com evidência (erro barato começa em low e sobe só com evidência), 2 armadilhas novas (estética não é esforço; overthinking piora), seção de cache (troca só em fronteira, subagente grátis em cache, sem keepalive); guia ganha hero com imagem + seções Cache e Harness; README educativo completo.
 - **v1.1.1** — guia/index.html (landing+guia padrão INEMA) + regra anti-overhead na skill.
 - **v1.1.0** — empate de gosto oferece escolha custo (sonnet+low) × qualidade (fable+low).
