@@ -6,6 +6,7 @@ Skill de **triagem de modelo e esforço** para Claude Code: recebe um problema b
 
 **Guia completo (landing + passo a passo):** https://inematds.github.io/maestro-roteador/guia/
 **Tira-dúvidas para iniciantes (analogias, FAQ e passo a passo):** [docs/guia-explicativo.md](docs/guia-explicativo.md)
+**English version:** [README.en.md](README.en.md) · [SKILL.en.md](skills/maestro-roteador/SKILL.en.md)
 
 ---
 
@@ -138,7 +139,8 @@ A skill foi escrita contra um baseline medido: sem ela, agentes colapsam qualque
 ```
 skills/
   maestro-roteador/
-    SKILL.md    # a skill: princípio, procedimento, tabela, armadilhas, cache, saída
+    SKILL.md       # a skill: princípio, procedimento, tabela, armadilhas, cache, saída
+    SKILL.en.md    # tradução em inglês da skill
 guia/
   index.html    # landing + guia de uso (GitHub Pages)
   assets/       # imagens do guia
@@ -161,6 +163,7 @@ Peça a triagem diretamente — "faz a triagem disso", "qual modelo e esforço p
 
 ## Changelog
 
+- **v1.2.3** — versões em inglês da skill (SKILL.en.md) e do README (README.en.md).
 - **v1.2.2** — armadilha do overthinking explicitada (excesso do próprio eixo esforço; o esforço certo é o menor que cobre o risco) + docs/guia-explicativo.md (tira-dúvidas educativo com analogias, FAQ e passo a passo).
 - **v1.2.1** — escada com evidência (erro barato começa em low e sobe só com evidência), 2 armadilhas novas (estética não é esforço; overthinking piora), seção de cache (troca só em fronteira, subagente grátis em cache, sem keepalive); guia ganha hero com imagem + seções Cache e Harness; README educativo completo.
 - **v1.1.1** — guia/index.html (landing+guia padrão INEMA) + regra anti-overhead na skill.
