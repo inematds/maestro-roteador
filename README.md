@@ -6,6 +6,7 @@ Skill de **triagem de modelo e esforço** para Claude Code: recebe um problema b
 
 **Guia completo (landing + passo a passo):** https://inematds.github.io/maestro-roteador/guia/
 **Tira-dúvidas para iniciantes (analogias, FAQ e passo a passo):** [docs/guia-explicativo.md](docs/guia-explicativo.md)
+**Referência de dados de esforço (Opus 5.5 e GPT-6 Astra, com gráficos):** https://inematds.github.io/modelos/guia/esforco/ — evidência de terceiros que reforça a escada; não altera o procedimento.
 **English version:** [README.en.md](README.en.md) · [SKILL.en.md](skills/maestro-roteador/SKILL.en.md)
 
 ---
