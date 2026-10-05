@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>maestro-roteador — triagem de modelo e esforço para Claude Code</title>
-<meta name="description" content="Skill de Claude Code que decide qual modelo (haiku/sonnet/opus/fable) e qual esforço (low→max) usar antes de despachar subagentes ou workflows.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<meta content="Skill de Claude Code que decide qual modelo (haiku/sonnet/opus/fable) e qual esforço (low→max) usar antes de despachar subagentes ou workflows." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
 <style>
   :root{
     --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
@@ -94,158 +95,144 @@
   footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
   .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
 </style>
-</head>
-<body>
-
+<link href="https://inematds.github.io/maestro-roteador/guia/" hreflang="pt-BR" rel="alternate"/><link href="https://inematds.github.io/maestro-roteador/guia/en/" hreflang="en" rel="alternate"/><link href="https://inematds.github.io/maestro-roteador/guia/es/" hreflang="es" rel="alternate"/></head>
+<body><div class="inema-lang" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;gap:2px;padding:4px;border-radius:10px;background:rgba(12,12,16,.82);border:1px solid rgba(226,162,59,.45);font:600 12px/1 Sora,Inter,system-ui,sans-serif;backdrop-filter:blur(8px)" translate="no"><a href="./" hreflang="pt-BR" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#1a1206;background:#E2A23B">PT</a><a href="en/" hreflang="en" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#e9e9ee">EN</a><a href="es/" hreflang="es" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#e9e9ee">ES</a></div>
 <nav><div class="wrap">
-  <a class="brand" href="#top"><span class="emoji">🎛️</span> maestro-roteador</a>
-  <span class="sep">|</span>
-  <span class="clubpro">
-    <a class="inema" href="https://inema.club" target="_blank" rel="noopener">INEMA.CLUB</a>
-    <span class="sep">-</span>
-    <a class="pro" href="https://inema.pro" target="_blank" rel="noopener">PRO</a>
-  </span>
-  <div class="links">
-    <a class="sec" href="#oque">O que é</a>
-    <a class="sec" href="#fluxo">Como funciona</a>
-    <a class="sec" href="#cache">Cache</a>
-    <a class="sec" href="#harness">Harness</a>
-    <a class="sec" href="#guia">Guia de uso</a>
-    <a class="sec" href="#exemplos">Validação</a>
-    <a class="sec" href="#roadmap">Roadmap</a>
-    <button class="tgl" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">🌙</button>
-    <a class="btn" href="https://github.com/inematds/maestro-roteador" target="_blank" rel="noopener">GitHub</a>
-  </div>
+<a class="brand" href="#top"><span class="emoji">🎛️</span> maestro-roteador</a>
+<span class="sep">|</span>
+<span class="clubpro">
+<a class="inema" href="https://inema.club" rel="noopener" target="_blank">INEMA.CLUB</a>
+<span class="sep">-</span>
+<a class="pro" href="https://inema.pro" rel="noopener" target="_blank">PRO</a>
+</span>
+<div class="links">
+<a class="sec" href="#oque">O que é</a>
+<a class="sec" href="#fluxo">Como funciona</a>
+<a class="sec" href="#cache">Cache</a>
+<a class="sec" href="#harness">Harness</a>
+<a class="sec" href="#guia">Guia de uso</a>
+<a class="sec" href="#exemplos">Validação</a>
+<a class="sec" href="#roadmap">Roadmap</a>
+<button aria-label="Alternar tema" class="tgl" id="themeToggle" title="Alternar tema">🌙</button>
+<a class="btn" href="https://github.com/inematds/maestro-roteador" rel="noopener" target="_blank">GitHub</a>
+</div>
 </div></nav>
-
 <header class="hero" id="top">
-  <div class="glow"></div>
-  <div class="wrap">
-    <div>
-      <span class="chip">Skill de Claude Code · triagem</span>
-      <h1>Modelo e esforço não se <span class="amb">convertem</span></h1>
-      <p class="lead">Antes de despachar um subagente ou workflow, o maestro-roteador decide separadamente <strong>qual modelo</strong> (haiku/sonnet/opus/fable) e <strong>quanto esforço</strong> (low→max) a tarefa merece — em vez de colapsar tudo em "sonnet+medium".</p>
-      <div class="cta">
-        <a class="btn" href="#guia">Começar o guia</a>
-        <a class="btn ghost" href="https://github.com/inematds/maestro-roteador" target="_blank" rel="noopener">Ver no GitHub</a>
-      </div>
-    </div>
-    <div class="heropanel">
-      <img src="assets/hero-maestro.jpg" alt="Skill orienta, orquestrador decide, agente executa — skill não age sozinha, o agente executa" loading="eager">
-    </div>
-  </div>
+<div class="glow"></div>
+<div class="wrap">
+<div>
+<span class="chip">Skill de Claude Code · triagem</span>
+<h1>Modelo e esforço não se <span class="amb">convertem</span></h1>
+<p class="lead">Antes de despachar um subagente ou workflow, o maestro-roteador decide separadamente <strong>qual modelo</strong> (haiku/sonnet/opus/fable) e <strong>quanto esforço</strong> (low→max) a tarefa merece — em vez de colapsar tudo em "sonnet+medium".</p>
+<div class="cta">
+<a class="btn" href="#guia">Começar o guia</a>
+<a class="btn ghost" href="https://github.com/inematds/maestro-roteador" rel="noopener" target="_blank">Ver no GitHub</a>
+</div>
+</div>
+<div class="heropanel">
+<img alt="Skill orienta, orquestrador decide, agente executa — skill não age sozinha, o agente executa" loading="eager" src="assets/hero-maestro.jpg"/>
+</div>
+</div>
 </header>
-
 <section id="oque"><div class="wrap">
-  <span class="chip">O que é</span>
-  <h2>Dois eixos, duas perguntas, nunca um meio-termo</h2>
-  <p class="sub">O maestro-roteador é uma skill de Claude Code: recebe um problema bruto e decide, antes de despachar, qual modelo e qual esforço cada parte do trabalho merece.</p>
-  <div class="grid g3">
-    <div class="card"><h3>🎯 Modelo = repertório</h3><p>Responde uma pergunta só: qual nível de critério o <strong>pior passo</strong> da tarefa exige? O menor modelo que resolve bem esse passo é o escolhido — nunca "por garantia".</p></div>
-    <div class="card"><h3>⚙️ Esforço = deliberação</h3><p>Soma ambiguidade + custo do erro. Solução única e erro barato → low. Vários caminhos plausíveis ou erro caro (produção, dado perdido) → high ou mais.</p></div>
-    <div class="card"><h3>⚖️ Erro não negocia, eficiência sim</h3><p>Quando o risco é de correção, não há opção barata. Quando é só acabamento/gosto, a skill oferece a escolha custo × qualidade e quem decide é o usuário.</p></div>
-  </div>
-  <div class="card" style="margin-top:16px;border-color:var(--amb,#E2A23B)"><h3>📊 <a href="https://inematds.github.io/modelos/guia/esforco/">Referência: esforço na prática →</a></h3><p>Dados de terceiros sobre o Opus 5.5 e o GPT-6 Astra em todos os níveis de esforço. Nos dois, o nível máximo não foi o preferido, o que reforça a escada: comece baixo e suba só com evidência. A página também traz a opinião do Nei: medium por padrão, high quando precisar de mais raciocínio, xhigh só em caso extremo. É referência e não muda o procedimento da skill. (<a href="https://inematds.github.io/modelos/guia/en/esforco/">EN</a> · <a href="https://inematds.github.io/modelos/guia/es/esforco/">ES</a>)</p></div>
+<span class="chip">O que é</span>
+<h2>Dois eixos, duas perguntas, nunca um meio-termo</h2>
+<p class="sub">O maestro-roteador é uma skill de Claude Code: recebe um problema bruto e decide, antes de despachar, qual modelo e qual esforço cada parte do trabalho merece.</p>
+<div class="grid g3">
+<div class="card"><h3>🎯 Modelo = repertório</h3><p>Responde uma pergunta só: qual nível de critério o <strong>pior passo</strong> da tarefa exige? O menor modelo que resolve bem esse passo é o escolhido — nunca "por garantia".</p></div>
+<div class="card"><h3>⚙️ Esforço = deliberação</h3><p>Soma ambiguidade + custo do erro. Solução única e erro barato → low. Vários caminhos plausíveis ou erro caro (produção, dado perdido) → high ou mais.</p></div>
+<div class="card"><h3>⚖️ Erro não negocia, eficiência sim</h3><p>Quando o risco é de correção, não há opção barata. Quando é só acabamento/gosto, a skill oferece a escolha custo × qualidade e quem decide é o usuário.</p></div>
+</div>
+<div class="card" style="margin-top:16px;border-color:var(--amb,#E2A23B)"><h3>📊 <a href="https://inematds.github.io/modelos/guia/esforco/">Referência: esforço na prática →</a></h3><p>Dados de terceiros sobre o Opus 5.5 e o GPT-6 Astra em todos os níveis de esforço. Nos dois, o nível máximo não foi o preferido, o que reforça a escada: comece baixo e suba só com evidência. A página também traz a opinião do Nei: medium por padrão, high quando precisar de mais raciocínio, xhigh só em caso extremo. É referência e não muda o procedimento da skill. (<a href="https://inematds.github.io/modelos/guia/en/esforco/">EN</a> · <a href="https://inematds.github.io/modelos/guia/es/esforco/">ES</a>)</p></div>
 </div></section>
-
 <section id="fluxo"><div class="wrap">
-  <span class="chip">Como funciona</span>
-  <h2>Procedimento, sempre nesta ordem</h2>
-  <p class="sub">A skill roda inline no turno principal — nunca em um subagente — e segue quatro passos fixos antes de despachar qualquer trabalho.</p>
-  <div class="flow">
-    <span>1. Isola o pior passo</span><span class="arr">→</span>
-    <span>2. Modelo = o menor que resolve</span><span class="arr">→</span>
-    <span>3. Esforço = ambiguidade + custo do erro</span><span class="arr">→</span>
-    <span>4. Volume: testa 1 item antes do lote</span>
-  </div>
-  <div class="grid g4" style="margin-top:28px">
-    <div class="card"><h3>🪤 Anti-overhead</h3><p>Tarefa mais barata que a própria triagem não recebe triagem. "Corrige esse typo" vai direto no default do turno.</p></div>
-    <div class="card"><h3>🚨 Risco nomeado = high</h3><p>Se você mesmo nomeou um risco de produção/perda na justificativa, o esforço mínimo é high. "Medium com cuidado" não existe.</p></div>
-    <div class="card"><h3>🪜 Escada com evidência</h3><p>Erro barato e reversível? Comece no menor esforço plausível e só suba com evidência de resultado insuficiente — nunca "high por garantia". A escada NÃO vale pra risco irreversível.</p></div>
-    <div class="card"><h3>🎭 Empate de gosto</h3><p>Quando a estrutura já está garantida por um template/skill e só falta acabamento, a triagem apresenta o par custo×qualidade e deixa o usuário escolher.</p></div>
-  </div>
-  <img class="figimg" src="assets/roteador-agentes.jpg" alt="Fluxo do roteador: seu pedido entra, o agente roteador analisa e escolhe o agente certo (pesquisa, código, conteúdo, análise, revisão) e entrega o resultado" loading="lazy">
+<span class="chip">Como funciona</span>
+<h2>Procedimento, sempre nesta ordem</h2>
+<p class="sub">A skill roda inline no turno principal — nunca em um subagente — e segue quatro passos fixos antes de despachar qualquer trabalho.</p>
+<div class="flow">
+<span>1. Isola o pior passo</span><span class="arr">→</span>
+<span>2. Modelo = o menor que resolve</span><span class="arr">→</span>
+<span>3. Esforço = ambiguidade + custo do erro</span><span class="arr">→</span>
+<span>4. Volume: testa 1 item antes do lote</span>
+</div>
+<div class="grid g4" style="margin-top:28px">
+<div class="card"><h3>🪤 Anti-overhead</h3><p>Tarefa mais barata que a própria triagem não recebe triagem. "Corrige esse typo" vai direto no default do turno.</p></div>
+<div class="card"><h3>🚨 Risco nomeado = high</h3><p>Se você mesmo nomeou um risco de produção/perda na justificativa, o esforço mínimo é high. "Medium com cuidado" não existe.</p></div>
+<div class="card"><h3>🪜 Escada com evidência</h3><p>Erro barato e reversível? Comece no menor esforço plausível e só suba com evidência de resultado insuficiente — nunca "high por garantia". A escada NÃO vale pra risco irreversível.</p></div>
+<div class="card"><h3>🎭 Empate de gosto</h3><p>Quando a estrutura já está garantida por um template/skill e só falta acabamento, a triagem apresenta o par custo×qualidade e deixa o usuário escolher.</p></div>
+</div>
+<img alt="Fluxo do roteador: seu pedido entra, o agente roteador analisa e escolhe o agente certo (pesquisa, código, conteúdo, análise, revisão) e entrega o resultado" class="figimg" loading="lazy" src="assets/roteador-agentes.jpg"/>
 </div></section>
-
 <section id="cache"><div class="wrap">
-  <span class="chip">Economia</span>
-  <h2>Cache: o custo escondido da troca de modelo</h2>
-  <p class="sub">O prompt cache é por modelo e depende do prefixo do contexto. Perder o cache de um contexto de 100k tokens torna a próxima entrada ~12,5× mais cara (gravação 1,25× vs. leitura 0,1×). A matriz de triagem precisa respeitar isso.</p>
-  <div class="grid g3">
-    <div class="card"><h3>🧱 Troca só em fronteira</h3><p>Trocar o <code>/model</code> do turno principal joga fora o cache acumulado. Faça a troca só em fronteira de trabalho (fim de fase, handoff) — nunca no meio de um bloco. Em contexto grande, a troca pode custar mais que a economia do modelo menor.</p></div>
-    <div class="card"><h3>🤖 Subagente é grátis em cache</h3><p>Cada Agent/Workflow tem contexto próprio: rotear uma parte pra um modelo menor via subagente NÃO toca o cache principal. É o caminho preferido pra aplicar a matriz sem custo de troca.</p></div>
-    <div class="card"><h3>🚫 Sem keepalive artificial</h3><p>Nunca mandar "ainda está aí?" só pra segurar o cache — o Claude Code gerencia o cache sozinho e o ping custa mais do que salva. Pausa longa? Handoff enxuto e deixe expirar.</p></div>
-  </div>
-  <div class="grid g2" style="margin-top:16px">
-    <div class="card"><h3>📋 Rotina que preserva cache</h3><p>Trabalhe em blocos contínuos (planejar → executar → testar → documentar), mantenha o começo do contexto estável (não ligar/desligar ferramentas e MCPs no meio do bloco) e concentre tarefas relacionadas na mesma sessão.</p></div>
-    <div class="card"><h3>⏸️ Pausas</h3><p>Pausa curta: continue normal. Pausa longa ou troca de tarefa: handoff curto (objetivo, estado, decisões, próximo passo) + contexto novo. Na API direta, chamadas espaçadas por 10–50 min pagam o cache de TTL 1h (gravação 2×).</p></div>
-  </div>
+<span class="chip">Economia</span>
+<h2>Cache: o custo escondido da troca de modelo</h2>
+<p class="sub">O prompt cache é por modelo e depende do prefixo do contexto. Perder o cache de um contexto de 100k tokens torna a próxima entrada ~12,5× mais cara (gravação 1,25× vs. leitura 0,1×). A matriz de triagem precisa respeitar isso.</p>
+<div class="grid g3">
+<div class="card"><h3>🧱 Troca só em fronteira</h3><p>Trocar o <code>/model</code> do turno principal joga fora o cache acumulado. Faça a troca só em fronteira de trabalho (fim de fase, handoff) — nunca no meio de um bloco. Em contexto grande, a troca pode custar mais que a economia do modelo menor.</p></div>
+<div class="card"><h3>🤖 Subagente é grátis em cache</h3><p>Cada Agent/Workflow tem contexto próprio: rotear uma parte pra um modelo menor via subagente NÃO toca o cache principal. É o caminho preferido pra aplicar a matriz sem custo de troca.</p></div>
+<div class="card"><h3>🚫 Sem keepalive artificial</h3><p>Nunca mandar "ainda está aí?" só pra segurar o cache — o Claude Code gerencia o cache sozinho e o ping custa mais do que salva. Pausa longa? Handoff enxuto e deixe expirar.</p></div>
+</div>
+<div class="grid g2" style="margin-top:16px">
+<div class="card"><h3>📋 Rotina que preserva cache</h3><p>Trabalhe em blocos contínuos (planejar → executar → testar → documentar), mantenha o começo do contexto estável (não ligar/desligar ferramentas e MCPs no meio do bloco) e concentre tarefas relacionadas na mesma sessão.</p></div>
+<div class="card"><h3>⏸️ Pausas</h3><p>Pausa curta: continue normal. Pausa longa ou troca de tarefa: handoff curto (objetivo, estado, decisões, próximo passo) + contexto novo. Na API direta, chamadas espaçadas por 10–50 min pagam o cache de TTL 1h (gravação 2×).</p></div>
+</div>
 </div></section>
-
 <section id="harness"><div class="wrap">
-  <span class="chip">Perspectiva</span>
-  <h2>Harness &gt; esforço: onde o resultado nasce de verdade</h2>
-  <p class="sub">Num teste real com a mesma tarefa em 12 níveis de esforço e 2 providers, os resultados funcionais foram quase idênticos — os níveis altos adicionaram um favicon e sombras, por 2–5× os tokens. O que muda o resultado não é o slider de esforço.</p>
-  <div class="grid g3">
-    <div class="card"><h3>📝 Spec clara vence esforço alto</h3><p>Um prompt que diz exatamente o que "pronto" significa entrega em low o que o esforço max tenta adivinhar. Esforço não compensa especificação vaga.</p></div>
-    <div class="card"><h3>🛠️ O modelo é um cérebro num pote</h3><p>Ferramentas, arquivos, terminal, skills e instruções — o harness — são os braços do modelo. Investir no harness rende mais que subir esforço.</p></div>
-    <div class="card"><h3>🧠 Esforço demais atrapalha</h3><p>Overthinking é o excesso do próprio eixo esforço: deliberação sobrando em tarefa simples re-explora caminhos já decididos e pode piorar o resultado, não só encarecer. O esforço certo é o menor que cobre o risco — acima disso você compra ruído, não segurança.</p></div>
-  </div>
-  <img class="figimg" src="assets/roteador-futuro.jpg" alt="O agente certo para a tarefa certa, sempre: roteador analisa tipo, complexidade, risco, ferramentas e custo antes de despachar agentes especializados" loading="lazy">
+<span class="chip">Perspectiva</span>
+<h2>Harness &gt; esforço: onde o resultado nasce de verdade</h2>
+<p class="sub">Num teste real com a mesma tarefa em 12 níveis de esforço e 2 providers, os resultados funcionais foram quase idênticos — os níveis altos adicionaram um favicon e sombras, por 2–5× os tokens. O que muda o resultado não é o slider de esforço.</p>
+<div class="grid g3">
+<div class="card"><h3>📝 Spec clara vence esforço alto</h3><p>Um prompt que diz exatamente o que "pronto" significa entrega em low o que o esforço max tenta adivinhar. Esforço não compensa especificação vaga.</p></div>
+<div class="card"><h3>🛠️ O modelo é um cérebro num pote</h3><p>Ferramentas, arquivos, terminal, skills e instruções — o harness — são os braços do modelo. Investir no harness rende mais que subir esforço.</p></div>
+<div class="card"><h3>🧠 Esforço demais atrapalha</h3><p>Overthinking é o excesso do próprio eixo esforço: deliberação sobrando em tarefa simples re-explora caminhos já decididos e pode piorar o resultado, não só encarecer. O esforço certo é o menor que cobre o risco — acima disso você compra ruído, não segurança.</p></div>
+</div>
+<img alt="O agente certo para a tarefa certa, sempre: roteador analisa tipo, complexidade, risco, ferramentas e custo antes de despachar agentes especializados" class="figimg" loading="lazy" src="assets/roteador-futuro.jpg"/>
 </div></section>
-
 <section id="pre"><div class="wrap">
-  <span class="chip">Pré-requisitos</span>
-  <h2>O que precisa estar no ar</h2>
-  <p class="sub">Só isso: Claude Code instalado e a skill disponível em <code>~/.claude/skills/</code> (usuário) ou <code>.claude/skills/</code> (projeto).</p>
-  <div class="grid g3">
-    <div class="card"><h3>Claude Code</h3><p>CLI com suporte a skills e a chamadas Agent/Workflow com parâmetros <code>model</code>/<code>effort</code>.</p><pre><span class="c"># confirma instalação</span>
+<span class="chip">Pré-requisitos</span>
+<h2>O que precisa estar no ar</h2>
+<p class="sub">Só isso: Claude Code instalado e a skill disponível em <code>~/.claude/skills/</code> (usuário) ou <code>.claude/skills/</code> (projeto).</p>
+<div class="grid g3">
+<div class="card"><h3>Claude Code</h3><p>CLI com suporte a skills e a chamadas Agent/Workflow com parâmetros <code>model</code>/<code>effort</code>.</p><pre><span class="c"># confirma instalação</span>
 claude --version</pre></div>
-    <div class="card"><h3>Git</h3><p>Pra clonar o repo e criar o symlink de instalação.</p><pre><span class="c"># confirma git</span>
+<div class="card"><h3>Git</h3><p>Pra clonar o repo e criar o symlink de instalação.</p><pre><span class="c"># confirma git</span>
 git --version</pre></div>
-    <div class="card"><h3>Nenhuma dependência extra</h3><p>Sem serviço externo, sem chave de API, sem build. É markdown puro lido pelo Claude Code.</p><pre><span class="c"># conteúdo da skill</span>
+<div class="card"><h3>Nenhuma dependência extra</h3><p>Sem serviço externo, sem chave de API, sem build. É markdown puro lido pelo Claude Code.</p><pre><span class="c"># conteúdo da skill</span>
 skills/maestro-roteador/SKILL.md</pre></div>
-  </div>
+</div>
 </div></section>
-
 <section id="guia"><div class="wrap">
-  <span class="chip">Guia de uso · passo a passo</span>
-  <h2>Instalar e usar a triagem</h2>
-  <p class="sub">Instalação por symlink (pra receber atualizações do repo automaticamente) e três formas de acionar a triagem.</p>
-
-  <div class="step"><div class="b">1</div><div>
-    <h3>Clone o repo</h3>
-    <p>Baixa a skill.</p>
+<span class="chip">Guia de uso · passo a passo</span>
+<h2>Instalar e usar a triagem</h2>
+<p class="sub">Instalação por symlink (pra receber atualizações do repo automaticamente) e três formas de acionar a triagem.</p>
+<div class="step"><div class="b">1</div><div>
+<h3>Clone o repo</h3>
+<p>Baixa a skill.</p>
 <pre><span class="k">git clone https://github.com/inematds/maestro-roteador.git</span></pre>
-  </div></div>
-
-  <div class="step"><div class="b">2</div><div>
-    <h3>Instale via symlink (usuário)</h3>
-    <p>Fica disponível em qualquer projeto e recebe atualizações do repo sem reinstalar.</p>
+</div></div>
+<div class="step"><div class="b">2</div><div>
+<h3>Instale via symlink (usuário)</h3>
+<p>Fica disponível em qualquer projeto e recebe atualizações do repo sem reinstalar.</p>
 <pre><span class="k">ln -sfn "$(pwd)/maestro-roteador/skills/maestro-roteador" ~/.claude/skills/maestro-roteador</span>  <span class="c"># symlink de usuário</span></pre>
-  </div></div>
-
-  <div class="step"><div class="b">3</div><div>
-    <h3>Ou copie só pra um projeto</h3>
-    <p>Sem symlink, direto na pasta de skills do projeto (não recebe atualizações automáticas).</p>
+</div></div>
+<div class="step"><div class="b">3</div><div>
+<h3>Ou copie só pra um projeto</h3>
+<p>Sem symlink, direto na pasta de skills do projeto (não recebe atualizações automáticas).</p>
 <pre><span class="k">cp -r maestro-roteador/skills/maestro-roteador .claude/skills/</span>  <span class="c"># skill só deste projeto</span></pre>
-  </div></div>
-
-  <div class="step"><div class="b">4</div><div>
-    <h3>Peça a triagem diretamente</h3>
-    <p>Frases-gatilho: "qual modelo", "quanto esforço", "faz a triagem disso".</p>
-<pre><span class="k">"Faz a triagem disso: renomear 80 arquivos em lote seguindo um padrão."</span>  <span class="c"># -> haiku + low</span></pre>
-  </div></div>
-
-  <div class="step"><div class="b">5</div><div>
-    <h3>Ou só peça o trabalho normalmente</h3>
-    <p>Ao despachar subagentes/workflows, a skill aplica a matriz sozinha e distribui cada parte com <code>model</code> e <code>effort</code> corretos — sem você precisar pedir a triagem à parte.</p>
-<pre><span class="k">"Migra esses dados de produção pro schema novo."</span>  <span class="c"># -> sonnet + high (risco nomeado)</span></pre>
-  </div></div>
-
-  <div class="step"><div class="b">6</div><div>
-    <h3>Leia o plano de despacho</h3>
-    <p>A saída sempre vem no mesmo formato YAML, com o pior passo e o risco explicitados por parte.</p>
+</div></div>
+<div class="step"><div class="b">4</div><div>
+<h3>Peça a triagem diretamente</h3>
+<p>Frases-gatilho: "qual modelo", "quanto esforço", "faz a triagem disso".</p>
+<pre><span class="k">"Faz a triagem disso: renomear 80 arquivos em lote seguindo um padrão."</span>  <span class="c"># -&gt; haiku + low</span></pre>
+</div></div>
+<div class="step"><div class="b">5</div><div>
+<h3>Ou só peça o trabalho normalmente</h3>
+<p>Ao despachar subagentes/workflows, a skill aplica a matriz sozinha e distribui cada parte com <code>model</code> e <code>effort</code> corretos — sem você precisar pedir a triagem à parte.</p>
+<pre><span class="k">"Migra esses dados de produção pro schema novo."</span>  <span class="c"># -&gt; sonnet + high (risco nomeado)</span></pre>
+</div></div>
+<div class="step"><div class="b">6</div><div>
+<h3>Leia o plano de despacho</h3>
+<p>A saída sempre vem no mesmo formato YAML, com o pior passo e o risco explicitados por parte.</p>
 <pre><span class="k">tarefa:</span> &lt;resumo&gt;
 <span class="k">partes:</span>
   - <span class="k">o_que:</span> &lt;subtarefa&gt;
@@ -254,46 +241,41 @@ skills/maestro-roteador/SKILL.md</pre></div>
     <span class="k">esforco:</span> low|medium|high|xhigh|max
     <span class="k">risco:</span> &lt;custo do erro em 1 linha&gt;
 <span class="k">turno_principal:</span> &lt;recomendação de /model, se valer trocar&gt;</pre>
-  </div></div>
-
+</div></div>
 </div></section>
-
 <section id="exemplos"><div class="wrap">
-  <span class="chip">Validação</span>
-  <h2>TDD de skill: baseline vs. com a skill</h2>
-  <p class="sub">A skill foi escrita contra um baseline medido: sem ela, agentes colapsam qualquer tarefa em "sonnet + medium". Com ela, os três cenários de teste foram pro canto certo da matriz.</p>
-  <table class="tbl">
-    <thead><tr><th>Cenário</th><th>Sem skill</th><th>Com skill</th></tr></thead>
-    <tbody>
-      <tr><td>Renomear 80 arquivos em lote</td><td class="antes">sonnet + medium</td><td class="depois">haiku + low</td></tr>
-      <tr><td>Roteiro com voz de marca</td><td class="antes">sonnet + medium</td><td class="depois">fable + low</td></tr>
-      <tr><td>Migração de dados com produção em risco</td><td class="antes">sonnet + medium</td><td class="depois">sonnet + high</td></tr>
-    </tbody>
-  </table>
-  <div class="ex" style="margin-top:24px">
-    <div class="card"><h3>💡 Por que isso importa</h3><p>O meio-termo genérico "sonnet+medium pra tudo" paga demais em tarefas mecânicas e de menos em tarefas com risco real — os três cenários mostram os dois erros ao mesmo tempo.</p></div>
-    <div class="card"><h3>🧪 Como testar você mesmo</h3><p>Rode "sem skill" (desative-a) e "com skill" no mesmo pedido bruto e compare o modelo/esforço escolhido — é exatamente o teste que validou os três cenários acima.</p></div>
-  </div>
+<span class="chip">Validação</span>
+<h2>TDD de skill: baseline vs. com a skill</h2>
+<p class="sub">A skill foi escrita contra um baseline medido: sem ela, agentes colapsam qualquer tarefa em "sonnet + medium". Com ela, os três cenários de teste foram pro canto certo da matriz.</p>
+<table class="tbl">
+<thead><tr><th>Cenário</th><th>Sem skill</th><th>Com skill</th></tr></thead>
+<tbody>
+<tr><td>Renomear 80 arquivos em lote</td><td class="antes">sonnet + medium</td><td class="depois">haiku + low</td></tr>
+<tr><td>Roteiro com voz de marca</td><td class="antes">sonnet + medium</td><td class="depois">fable + low</td></tr>
+<tr><td>Migração de dados com produção em risco</td><td class="antes">sonnet + medium</td><td class="depois">sonnet + high</td></tr>
+</tbody>
+</table>
+<div class="ex" style="margin-top:24px">
+<div class="card"><h3>💡 Por que isso importa</h3><p>O meio-termo genérico "sonnet+medium pra tudo" paga demais em tarefas mecânicas e de menos em tarefas com risco real — os três cenários mostram os dois erros ao mesmo tempo.</p></div>
+<div class="card"><h3>🧪 Como testar você mesmo</h3><p>Rode "sem skill" (desative-a) e "com skill" no mesmo pedido bruto e compare o modelo/esforço escolhido — é exatamente o teste que validou os três cenários acima.</p></div>
+</div>
 </div></section>
-
 <section id="roadmap"><div class="wrap">
-  <span class="chip">Roadmap</span>
-  <h2>Estado atual e limite conhecido</h2>
-  <p class="sub">Projeto de pesquisa/educação INEMA — sem roadmap formal de features; o que existe hoje e o limite documentado da skill.</p>
-  <div class="phase"><div class="tag">Hoje</div><div class="d"><strong>Skill funcional, validada contra baseline</strong><span>Regras de decisão, tabela rápida, armadilhas comuns e formato de saída definidos em SKILL.md, testados nos três cenários acima.</span></div></div>
-  <div class="phase"><div class="tag">Automático</div><div class="d"><strong>Subagentes e workflows</strong><span>Para chamadas Agent/Workflow, a decisão de model/effort é automática — a skill aplica a matriz sem precisar ser chamada explicitamente.</span></div></div>
-  <div class="phase"><div class="tag">Limite</div><div class="d"><strong>Conversa principal só recomenda</strong><span>Para o modelo do turno principal, a skill apenas sugere — a troca de fato é sempre do usuário via /model.</span></div></div>
+<span class="chip">Roadmap</span>
+<h2>Estado atual e limite conhecido</h2>
+<p class="sub">Projeto de pesquisa/educação INEMA — sem roadmap formal de features; o que existe hoje e o limite documentado da skill.</p>
+<div class="phase"><div class="tag">Hoje</div><div class="d"><strong>Skill funcional, validada contra baseline</strong><span>Regras de decisão, tabela rápida, armadilhas comuns e formato de saída definidos em SKILL.md, testados nos três cenários acima.</span></div></div>
+<div class="phase"><div class="tag">Automático</div><div class="d"><strong>Subagentes e workflows</strong><span>Para chamadas Agent/Workflow, a decisão de model/effort é automática — a skill aplica a matriz sem precisar ser chamada explicitamente.</span></div></div>
+<div class="phase"><div class="tag">Limite</div><div class="d"><strong>Conversa principal só recomenda</strong><span>Para o modelo do turno principal, a skill apenas sugere — a troca de fato é sempre do usuário via /model.</span></div></div>
 </div></section>
-
 <footer>
-  <div class="wrap">
-    <div class="pill">Claude Code Skill</div><div class="pill">Markdown</div><div class="pill">MIT</div>
-    <p style="margin-top:18px">maestro-roteador · projeto de pesquisa/educação INEMA ·
+<div class="wrap">
+<div class="pill">Claude Code Skill</div><div class="pill">Markdown</div><div class="pill">MIT</div>
+<p style="margin-top:18px">maestro-roteador · projeto de pesquisa/educação INEMA ·
       <a href="https://github.com/inematds/maestro-roteador">inematds/maestro-roteador</a> ·
       <a href="https://inema.club">INEMA.CLUB</a></p>
-  </div>
+</div>
 </footer>
-
 <script>
   (function(){
     var KEY='maestro-roteador-theme';
