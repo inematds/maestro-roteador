@@ -40,7 +40,7 @@ Source: “Optimizing for cost and intelligence” (platform.claude.com) and the
 3. **Escalation with reruns:** running at `low` and rerunning only what fails at `high` achieved ~97% for US$ 0.17/task, versus 95.3% for US$ 0.29 with everything at `high` (Opus 5.5, SWE-bench Pro, Anthropic measurement). This is worthwhile when you can tell immediately whether it failed.
 4. **Split work only in two measured cases:** many independent parts with long cost tails, or work larger than a context window. A chain of dependent steps or work that fits in one session → the model alone at lower effort won in every measured case (on earlier models). When in doubt, don’t split the work.
 5. **Always pin `model` and `effort` for helpers.** Without `model`, the subagent inherits the session model. Without `effort`, on a model different from the session model, it doesn’t inherit your level. The built-in search (Explore) runs on the session model; with Fable on the subscription, it runs on Opus. An `Explore.md` with `model: haiku` in `~/.claude/agents/` or `.claude/agents/` replaces it (fable-barato kit).
-6. **Use Fable as a reviewer, not a worker:** Opus does the work and Fable reviews the final 10% when errors are costly (the document’s advisor pattern).
+6. **Use Fable as a reviewer, not a worker:** Opus does the work and Fable reviews only what is critical. The document measured a strong model as an advisor: 1.7 points better for ~2.1× the cost, so use it only when errors are costly.
 
 ## Quick table
 

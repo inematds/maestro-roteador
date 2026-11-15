@@ -38,7 +38,7 @@ Fonte: "Optimizing for cost and intelligence" (platform.claude.com) e a doc de s
 3. **Escada com reexecução:** rodar em `low` e refazer em `high` só o que falhar deu ~97% por US$ 0,17/tarefa, contra 95,3% por US$ 0,29 com tudo em `high` (Opus 5.5, SWE-bench Pro, medição da Anthropic). Vale quando dá para saber na hora se falhou.
 4. **Dividir só em dois casos medidos:** muitas partes independentes com cauda longa de custo, ou trabalho maior que uma janela de contexto. Cadeia de passos dependentes ou trabalho que cabe numa sessão → o modelo sozinho em esforço menor ganhou em todos os casos medidos (em modelos anteriores). Na dúvida, não divida.
 5. **Ajudantes sempre com `model` e `effort` fixos.** Sem `model`, o subagente herda o modelo da sessão. Sem `effort`, num modelo diferente do da sessão, ele não herda o seu nível. A busca embutida (Explore) roda no modelo da sessão; com Fable na assinatura, roda no Opus. Um `Explore.md` com `model: haiku` em `~/.claude/agents/` ou `.claude/agents/` toma o lugar dela (kit fable-barato).
-6. **Fable como revisor, não como operário:** o Opus faz e o Fable revisa os últimos 10% quando o erro é caro (padrão advisor do documento).
+6. **Fable como revisor, não como operário:** o Opus faz e o Fable revisa só o que é crítico. O documento mediu um modelo forte como conselheiro (padrão advisor): ganho de 1,7 ponto por ~2,1× o custo, então vale só quando o erro é caro.
 
 ## Tabela rápida
 
