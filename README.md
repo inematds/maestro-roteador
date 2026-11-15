@@ -164,6 +164,7 @@ Peça a triagem diretamente — "faz a triagem disso", "qual modelo e esforço p
 
 ## Changelog
 
+- **v1.3.3** — Fable 5.2: Opus 5.5 medium como ponto de partida, escada low→high só no que falhar, dividir só nos 2 casos medidos, ajudantes com `model`/`effort` fixos, Explore no Haiku, Fable como revisor (base: documento oficial da Anthropic + medições do [fable-barato](https://github.com/inematds/fable-barato)); campo `dividir` no plano de despacho.
 - **v1.2.3** — versões em inglês da skill (SKILL.en.md) e do README (README.en.md).
 - **v1.2.2** — armadilha do overthinking explicitada (excesso do próprio eixo esforço; o esforço certo é o menor que cobre o risco) + docs/guia-explicativo.md (tira-dúvidas educativo com analogias, FAQ e passo a passo).
 - **v1.2.1** — escada com evidência (erro barato começa em low e sobe só com evidência), 2 armadilhas novas (estética não é esforço; overthinking piora), seção de cache (troca só em fronteira, subagente grátis em cache, sem keepalive); guia ganha hero com imagem + seções Cache e Harness; README educativo completo.

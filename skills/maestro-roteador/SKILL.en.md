@@ -31,6 +31,17 @@ Effort buys deliberation, never repertoire. Model buys repertoire, never verific
    - **Evidence ladder (cheap errors only):** if the error is reversible and immediately verifiable (you can test/inspect/undo), start at the **lowest plausible effort** and only climb with **evidence** of an insufficient result — never "high just in case". The ladder NEVER applies to irreversible risk: there, the evidence of failure would be the damage itself, and the rule above applies.
 4. **Volume:** N identical items → test 1 item on the smallest model; if it passes, the whole batch goes to it.
 
+## Fable 5.2: when it’s worth it (v1.3, based on Anthropic’s official document)
+
+Source: “Optimizing for cost and intelligence” (platform.claude.com) and the Claude Code subagents documentation.
+
+1. **Session starting point = Opus 5.5 at `medium`.** Use Fable 5.2 only for hard reasoning, long-running work done autonomously, or when Opus at `high` wasn’t enough. In an Anthropic research test (DeepResearch Bench II, default effort), Fable 5.2 cost 2.9× as much as Opus 5.5 and scored 1.9 points lower. When using Fable, use `high`, because at low/medium it stops midway more often.
+2. **Before switching models, sweep the effort level.** For most tasks, the decision ends there.
+3. **Escalation with reruns:** running at `low` and rerunning only what fails at `high` achieved ~97% for US$ 0.17/task, versus 95.3% for US$ 0.29 with everything at `high` (Opus 5.5, SWE-bench Pro, Anthropic measurement). This is worthwhile when you can tell immediately whether it failed.
+4. **Split work only in two measured cases:** many independent parts with long cost tails, or work larger than a context window. A chain of dependent steps or work that fits in one session → the model alone at lower effort won in every measured case (on earlier models). When in doubt, don’t split the work.
+5. **Always pin `model` and `effort` for helpers.** Without `model`, the subagent inherits the session model. Without `effort`, on a model different from the session model, it doesn’t inherit your level. The built-in search (Explore) runs on the session model; with Fable on the subscription, it runs on Opus. An `Explore.md` with `model: haiku` in `~/.claude/agents/` or `.claude/agents/` replaces it (fable-barato kit).
+6. **Use Fable as a reviewer, not a worker:** Opus does the work and Fable reviews the final 10% when errors are costly (the document’s advisor pattern).
+
 ## Quick table
 
 | Task | Model | Effort | Why |
@@ -40,6 +51,9 @@ Effort buys deliberation, never repertoire. Model buys repertoire, never verific
 | Data migration with production at risk | sonnet | high | Standard capability; the risk demands verification, not intelligence |
 | Script/copy with brand voice | fable | low | Hardest step is taste (repertoire); the decision is straightforward |
 | Mysterious bug, architecture decision | fable | high | Hard AND ambiguous |
+| Search/read/summarize files (subagent) | haiku | medium | Easy-to-spot errors; never inherit Fable |
+| Day-to-day session work (code, text, plan) | opus | medium | Official starting point; raise effort before switching |
+| Final review of important work | fable | high | Pay for Fable only for judgment |
 
 ## Traps (seen in real testing)
 
@@ -86,6 +100,7 @@ Signal of a taste tie: a detailed template/skill has already settled the structu
 
 ```yaml
 task: <summary>
+split: yes|no — <reason: independent parts + lots of reading / fits in one session>
 parts:
   - what: <subtask>
     hardest_step: <which and why>

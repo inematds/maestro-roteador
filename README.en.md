@@ -165,6 +165,7 @@ Ask for the triage directly — "triage this", "which model and effort for this?
 
 ## Changelog
 
+- **v1.3.3** — Fable 5.2: Opus 5.5 medium as the starting point, low→high ladder only on failures, split only in the 2 measured cases, helpers with pinned `model`/`effort`, Explore on Haiku, Fable as reviewer (based on Anthropic's official document + [fable-barato](https://github.com/inematds/fable-barato) measurements); `split` field in the dispatch plan.
 - **v1.2.3** — English versions of the skill (SKILL.en.md) and README (README.en.md).
 - **v1.2.2** — overthinking trap made explicit (excess of the effort axis itself; the right effort is the smallest that covers the risk) + docs/guia-explicativo.md (educational FAQ with analogies and a step-by-step).
 - **v1.2.1** — evidence ladder (cheap errors start at low and climb only with evidence), 2 new traps (polish is not effort; overthinking makes it worse), cache section (switch only at boundaries, subagents are cache-free, no keepalive); guide got an image hero + Cache and Harness sections; full educational README.

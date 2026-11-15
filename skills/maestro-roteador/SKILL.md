@@ -29,6 +29,17 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
    - **Escada com evidência (só para erro barato):** se o erro é reversível e verificável na hora (dá pra testar/olhar/desfazer), comece no **menor esforço plausível** e só suba com **evidência** de resultado insuficiente — nunca "high por garantia". A escada NÃO se aplica a risco irreversível: aí a evidência de falha seria o próprio prejuízo, e vale a regra acima.
 4. **Volume:** N itens iguais → teste 1 item no menor modelo; se passa, o lote inteiro vai nele.
 
+## Fable 5.2: quando ele compensa (v1.3, base: documento oficial da Anthropic)
+
+Fonte: "Optimizing for cost and intelligence" (platform.claude.com) e a doc de subagentes do Claude Code.
+
+1. **Ponto de partida da sessão = Opus 5.5 em `medium`.** Fable 5.2 só para raciocínio difícil, trabalho longo rodando sozinho, ou quando o Opus em `high` não deu conta. Num teste de pesquisa da Anthropic (DeepResearch Bench II, esforço padrão), o Fable 5.2 custou 2,9× o Opus 5.5 e pontuou 1,9 ponto a menos. Quando for Fable, use `high`, porque em low/medium ele para no meio com mais frequência.
+2. **Antes de trocar de modelo, varra o esforço.** Na maioria dos trabalhos a decisão acaba aí.
+3. **Escada com reexecução:** rodar em `low` e refazer em `high` só o que falhar deu ~97% por US$ 0,17/tarefa, contra 95,3% por US$ 0,29 com tudo em `high` (Opus 5.5, SWE-bench Pro, medição da Anthropic). Vale quando dá para saber na hora se falhou.
+4. **Dividir só em dois casos medidos:** muitas partes independentes com cauda longa de custo, ou trabalho maior que uma janela de contexto. Cadeia de passos dependentes ou trabalho que cabe numa sessão → o modelo sozinho em esforço menor ganhou em todos os casos medidos (em modelos anteriores). Na dúvida, não divida.
+5. **Ajudantes sempre com `model` e `effort` fixos.** Sem `model`, o subagente herda o modelo da sessão. Sem `effort`, num modelo diferente do da sessão, ele não herda o seu nível. A busca embutida (Explore) roda no modelo da sessão; com Fable na assinatura, roda no Opus. Um `Explore.md` com `model: haiku` em `~/.claude/agents/` ou `.claude/agents/` toma o lugar dela (kit fable-barato).
+6. **Fable como revisor, não como operário:** o Opus faz e o Fable revisa os últimos 10% quando o erro é caro (padrão advisor do documento).
+
 ## Tabela rápida
 
 | Tarefa | Modelo | Esforço | Por quê |
@@ -38,6 +49,9 @@ Esforço compra deliberação, nunca repertório. Modelo compra repertório, nun
 | Migração de dados com produção em risco | sonnet | high | Capacidade padrão; o risco pede verificação, não inteligência |
 | Roteiro/copy com voz de marca | fable | low | Pior passo é gosto (repertório); decisão é direta |
 | Bug misterioso, decisão de arquitetura | fable | high | Difícil E ambíguo |
+| Buscar/ler/resumir arquivos (subagente) | haiku | medium | Erro fácil de ver; nunca herdar o Fable |
+| Dia a dia da sessão (código, texto, plano) | opus | medium | Ponto de partida oficial; sobe o esforço antes de trocar |
+| Revisão final de trabalho importante | fable | high | Paga o Fable só no julgamento |
 
 ## Armadilhas (vistas em teste real)
 
@@ -84,6 +98,7 @@ Sinal de empate de gosto: existe um template/skill detalhada que já decidiu a e
 
 ```yaml
 tarefa: <resumo>
+dividir: sim|não — <motivo: partes independentes + muita leitura / cabe numa sessão>
 partes:
   - o_que: <subtarefa>
     pior_passo: <qual e por quê>
